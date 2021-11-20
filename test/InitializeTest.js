@@ -14,4 +14,18 @@ test_redis_connection = function (){
         }
     });
 }
+test_redis_mget = function (){
+    console.log("Running test_redis_mget")
+    let redisClient = initializer.getRedisClient();
+    const TEST_VALUE_1 = "CS218FA21_1"
+    const TEST_VALUE_2 = "CS218FA21_2"
+    const TEST_VALUE_3 = "CS218FA21_3"
+    redisClient.set("test1", TEST_VALUE_1);
+    redisClient.set("test2", TEST_VALUE_2);
+    redisClient.set("test3", TEST_VALUE_3);
+    redisClient.mget(['test1','test2', 'test3'], function(err, val) {
+        console.log(val);
+    });
+}
 test_redis_connection();
+test_redis_mget()
