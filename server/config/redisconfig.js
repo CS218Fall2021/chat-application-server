@@ -1,2 +1,2 @@
-export const secret = "nodeauthsecret";
-export const database = "mongodb://splitwise_mongo:27017/test";
+const redis_endpoint = process.env.REDIS_ADDRESS || 'redis://127.0.0.1:6379'
+exports.redis_endpoint = redis_endpoint
