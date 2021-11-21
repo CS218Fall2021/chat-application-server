@@ -94,7 +94,8 @@ io.on("connection", (socket) => {
                             otherServerList.add(userDetails.serverId)
                         }
                     }
-                    io.to(homeUserSocketIdList).emit('SendingMessage', {from: senderId,to: convId,message: message});
+                    let ts = Math.floor(+new Date() / 1000);
+                    io.to(homeUserSocketIdList).emit('SendingMessage', {from: senderId,to: convId,message: message, timestamp: ts});
                     for (let serverId in otherServerList){
                         redisClient.publish("topic_" + serverId, JSON.stringify({senderId, convId, message}));
                     }
@@ -103,7 +104,7 @@ io.on("connection", (socket) => {
                         cid: convId,
                         sender_id: senderId,
                         data: message,
-                        timestamp: Math.floor(+new Date() / 1000),
+                        timestamp: ts,
                         group: false
                     }
                     con.query("INSERT INTO message_table VALUES (?, ?, ?, ?, ?, ?)", [body.m_id, body.cid, body.sender_id, body.data, body. timestamp, body.group], function(err, result) {

@@ -1,5 +1,7 @@
 const {initializer} = require("../server/init");
 const {v4: uuidv4} = require("uuid");
+const redis = require("redis");
+const {redis_endpoint} = require("../server/config/redisconfig");
 
 test_redis_connection = function (){
     console.log("Running test_redis_connection")
@@ -57,11 +59,20 @@ test_cache = function () {
         })
     }
 }
-
-let redisClient = initializer.getRedisClient();
 let serverId = 123;
-redisClient.psubscribe("wtf");
-redisClient.on('message', function(channel, packetStr) {
-    console.log(packetStr);
-});
-redisClient.publish("topic", "Hello Packet!");
+// redisClient.subscribe("topic");
+// redisClient.on("topic", function(channel, packetStr) {
+//     console.log(packetStr);
+// });
+redis_subscribers = {};
+function add_redis_subscriber(subscriber_key) {
+    var client = redis.createClient(redis_endpoint);
+    client.subscribe(subscriber_key);
+    client.on('topic', function(channel, message) {
+        console.log(message);
+    });
+    redis_subscribers[subscriber_key] = client;
+}
+add_redis_subscriber("topic");
+let redisClient2 = initializer.getRedisClient();
+redisClient2.publish("topic", "Hello Packet!");
