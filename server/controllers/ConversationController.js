@@ -8,6 +8,7 @@ con = initializer.getSQLConn()
 ConversationController.add = (req, res) => {
     console.log("Adding Conversation...");
     let userList = req.body.userList;
+    let groupName = req.body.groupName;
     const n = userList.length;
     let convId = uuidv4();
     let values = [];
@@ -20,9 +21,18 @@ ConversationController.add = (req, res) => {
         } else {
             console.log(result);
             redisClient.set("conv:"+convId, JSON.stringify(userList));
-            res.json({
-                "success": "Success"
-            })
+            if(groupName){
+                con.query("INSERT INTO group_table (cid, user_id) VALUES ?", [values], function (err, result) {
+                    res.json({
+                        "success": convId
+                    })
+                });
+            }
+            else{
+                res.json({
+                    "success": convId
+                })
+            }
         }
     });
 }
