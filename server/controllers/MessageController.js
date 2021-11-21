@@ -53,11 +53,10 @@ MessageController.fetchByCid = (req, res) =>{
 }
 
 MessageController.fetchByTS = (req, res) => {
-    var mom = moment();
-    const ts = mom.subtract(10, "days").format('YYYY-MM-DD HH:mm:ss');
-    var cid = req.params.cid;
-
-    con.query("SELECT * FROM message_table WHERE timestamp >= ? AND cid = ?", [ts, cid], function(err, result) {
+    let cid = req.params.cid;
+    let from_ts  = req.params.from_ts;
+    let to_ts  = req.params.to_ts;
+    con.query("SELECT * FROM message_table WHERE timestamp >=  ? AND timestamp <= ? AND cid = ?", [from_ts, to_ts, cid], function(err, result) {
         if(err) {
             console.log("err");
             res.json({

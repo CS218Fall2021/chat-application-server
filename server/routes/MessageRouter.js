@@ -8,6 +8,6 @@ router.post("/", parser,  MessageController.add);
 
 router.get("/:cid", parser, MessageController.fetchByCid);
 
-router.get("/:cid/ts", parser, MessageController.fetchByTS);
+router.get("/:cid/:from_ts/:to_ts", parser, MessageController.fetchByTS);
 
 module.exports = router;

@@ -13,6 +13,7 @@ const redisClient = initializer.getRedisClient();
 const ConversationRouter = require("./routes/ConversationRouter");
 const MessageRouter = require("./routes/MessageRouter");
 const UserRouter = require("./routes/UserRouter");
+const moment = require("moment");
 
 const serverId = uuidv4();
 const app = express();
@@ -33,33 +34,33 @@ const server = http.createServer(app);
 const io = socketIo(server,  {cors: {origin: '*',}});
 const con = initializer.getSQLConn()
 
-redisClient.subscribe("topic_" + serverId);
-redisClient.on('message', function(channel, packetStr) {
-    let packet = JSON.parse(packetStr);
-    con.query("SELECT *  FROM conversation_table WHERE cid = ?", req.params.convId , function (err, resultSet) {
-        if (!err) {
-            let userIdList = [];
-            resultSet.forEach(e=>(userIdList.push(e.userId)));
-            redisClient.mget(userIdList, function (err, userDetailsList){
-                let homeUserSocketIdList = [];
-                let n = userDetailsList.length;
-                for(let i=0;i<n;i++){
-                    let userDetails = JSON.parse(userDetailsList[i]);
-                    if(userDetails.serverId === serverId){
-                        homeUserSocketIdList.push(userDetails.socketId)
-                    }
-                }
-                io.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message})
-            })
-        }
-    });
-});
+// redisClient.subscribe("topic_" + serverId);
+// redisClient.on('message', function(channel, packetStr) {
+//     let packet = JSON.parse(packetStr);
+//     con.query("SELECT *  FROM conversation_table WHERE cid = ?", packet.convId , function (err, resultSet) {
+//         if (!err) {
+//             let userIdList = [];
+//             resultSet.forEach(e=>(userIdList.push(e.userId)));
+//             redisClient.mget(userIdList, function (err, userDetailsList){
+//                 let homeUserSocketIdList = [];
+//                 let n = userDetailsList.length;
+//                 for(let i=0;i<n;i++){
+//                     let userDetails = JSON.parse(userDetailsList[i]);
+//                     if(userDetails.serverId === serverId){
+//                         homeUserSocketIdList.push(userDetails.socketId)
+//                     }
+//                 }
+//                 io.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message})
+//             })
+//         }
+//     });
+// });
 io.on("connection", (socket) => {
     console.log("New client connected");
 
     socket.on("UserIsOnline", ({userId, socketId}) => {
-        let userDetails = {"socketId": socket.id, serverId, "c_socketId": socketId}
-        redisClient.set(userId, JSON.stringify(userDetails));
+        let userDetails = {"socketId": socket.id, serverId}
+        redisClient.set(""+userId, JSON.stringify(userDetails));
         console.log("User connected: ", userDetails);
     });
 
@@ -71,14 +72,17 @@ io.on("connection", (socket) => {
         console.log("Client disconnected");
     });
 
-    socket.on("IncomingMessage", async ({userId, convId, message}) => {
-        con.query("SELECT *  FROM conversation_table WHERE cid = ?", req.params.convId , function (err, resultSet) {
+    // TODO same user validation
+    socket.on("IncomingMessage", async ({senderId, convId, message}) => {
+        con.query("SELECT *  FROM conversation_table WHERE cid = ?", convId , function (err, resultSet) {
             if (!err) {
                 let userIdList = [];
-                resultSet.forEach(e=>(userIdList.push(e.userId)));
+                for(let i = 0; i < resultSet.length; i++) {
+                    userIdList.push(resultSet[i].user_id);
+                }
                 redisClient.mget(userIdList, function (err, userDetailsList){
                     let homeUserSocketIdList = [];
-                    let otherServerList = set();
+                    let otherServerList = new Set();
                     let n = userDetailsList.length;
                     for(let i=0;i<n;i++){
                         let userDetails = JSON.parse(userDetailsList[i]);
@@ -88,10 +92,23 @@ io.on("connection", (socket) => {
                             otherServerList.add(userDetails.serverId)
                         }
                     }
-                    socket.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message});
+                    io.to(homeUserSocketIdList).emit('SendingMessage', {from: senderId,to: convId,message: message});
                     for (let serverId in otherServerList){
-                        redisClient.publish("topic_" + serverId, JSON.stringify({userId, convId, message}));
+                        redisClient.publish("topic_" + serverId, JSON.stringify({senderId, convId, message}));
                     }
+                    let body = {
+                        m_id: uuidv4(),
+                        cid: convId,
+                        sender_id: senderId,
+                        data: message,
+                        timestamp: Math.floor(+new Date() / 1000),
+                        group: false
+                    }
+                    con.query("INSERT INTO message_table VALUES (?, ?, ?, ?, ?, ?)", [body.m_id, body.cid, body.sender_id, body.data, body. timestamp, body.group], function(err, result) {
+                        if(!err) {
+                            console.log(result);
+                        }
+                    });
                 })
             }
         });

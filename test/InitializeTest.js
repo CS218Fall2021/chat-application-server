@@ -4,8 +4,8 @@ test_redis_connection = function (){
     console.log("Running test_redis_connection")
     let redisClient = initializer.getRedisClient();
     const TEST_VALUE = "CS218FA21"
-    redisClient.set("test", TEST_VALUE);
-    redisClient.get('test', function(err, val) {
+    redisClient.set(1, TEST_VALUE);
+    redisClient.get(1, function(err, val) {
         console.log(val);
         if(TEST_VALUE===val){
             console.log("test_redis_connection successful");
@@ -27,3 +27,5 @@ test_redis_mget = function (){
         console.log(val);
     });
 }
+
+test_redis_connection()
