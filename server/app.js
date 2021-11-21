@@ -34,27 +34,27 @@ const server = http.createServer(app);
 const io = socketIo(server,  {cors: {origin: '*',}});
 const con = initializer.getSQLConn()
 
-// redisClient.subscribe("topic_" + serverId);
-// redisClient.on('message', function(channel, packetStr) {
-//     let packet = JSON.parse(packetStr);
-//     con.query("SELECT *  FROM conversation_table WHERE cid = ?", packet.convId , function (err, resultSet) {
-//         if (!err) {
-//             let userIdList = [];
-//             resultSet.forEach(e=>(userIdList.push(e.userId)));
-//             redisClient.mget(userIdList, function (err, userDetailsList){
-//                 let homeUserSocketIdList = [];
-//                 let n = userDetailsList.length;
-//                 for(let i=0;i<n;i++){
-//                     let userDetails = JSON.parse(userDetailsList[i]);
-//                     if(userDetails.serverId === serverId){
-//                         homeUserSocketIdList.push(userDetails.socketId)
-//                     }
-//                 }
-//                 io.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message})
-//             })
-//         }
-//     });
-// });
+redisClient.subscribe("topic_" + serverId);
+redisClient.on('message', function(channel, packetStr) {
+    let packet = JSON.parse(packetStr);
+    con.query("SELECT *  FROM conversation_table WHERE cid = ?", packet.convId , function (err, resultSet) {
+        if (!err) {
+            let userIdList = [];
+            resultSet.forEach(e=>(userIdList.push(e.userId)));
+            redisClient.mget(userIdList, function (err, userDetailsList){
+                let homeUserSocketIdList = [];
+                let n = userDetailsList.length;
+                for(let i=0;i<n;i++){
+                    let userDetails = JSON.parse(userDetailsList[i]);
+                    if(userDetails.serverId === serverId){
+                        homeUserSocketIdList.push(userDetails.socketId)
+                    }
+                }
+                io.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message})
+            })
+        }
+    });
+});
 io.on("connection", (socket) => {
     console.log("New client connected");
 

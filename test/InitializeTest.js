@@ -1,4 +1,5 @@
 const {initializer} = require("../server/init");
+const {v4: uuidv4} = require("uuid");
 
 test_redis_connection = function (){
     console.log("Running test_redis_connection")
@@ -27,5 +28,29 @@ test_redis_mget = function (){
         console.log(val);
     });
 }
-
-test_redis_connection()
+convId = '71d79abf-2099-44f6-8137-be37e617e3ab';
+redisClient = initializer.getRedisClient();
+con = initializer.getSQLConn();
+redisClient.get(""+convId, function (err, reply){
+    let userIdList;
+    if (err || !reply) {
+        con.query("SELECT *  FROM conversation_table WHERE cid = ?", convId, function (err, resultSet) {
+            if (!err) {
+                userIdList = [];
+                for (let i = 0; i < resultSet.length; i++) {
+                    userIdList.push(resultSet[i].user_id);
+                }
+                redisClient.set("" + convId, JSON.stringify(userIdList));
+                oper(userIdList)
+            }
+        });
+    } else {
+        userIdList = JSON.parse(reply);
+        oper(userIdList)
+    }
+})
+let oper = (userIdList)=>{
+    redisClient.mget(userIdList, function (err, userDetailsList){
+        console.log("Success:", userDetailsList)
+    })
+}
