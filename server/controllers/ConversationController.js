@@ -10,18 +10,21 @@ ConversationController.add = (req, res) => {
     let userList = req.body.userList;
     const n = userList.length;
     let convId = uuidv4();
-    for(let i=0;i<n;i++) {
-        con.query("INSERT INTO conversation_table VALUES (?,?)", [convId, userList[i]], function (err, result) {
-            if (err) {
-                console.log("err");
-            } else {
-                console.log(result);
-                res.json({
-                    "success": "Success"
-                })
-            }
-        });
+    let values = [];
+    for(let i=0;i<n;i++){
+        values.push([convId, userList[i]]);
     }
+    con.query("INSERT INTO conversation_table (cid, user_id) VALUES ?", [values], function (err, result) {
+        if (err) {
+            console.log("err");
+        } else {
+            console.log(result);
+            redisClient.set("conv:"+convId, JSON.stringify(userList));
+            res.json({
+                "success": "Success"
+            })
+        }
+    });
 }
 
 ConversationController.fetchByUserId = (req, res) => {
