@@ -28,29 +28,40 @@ test_redis_mget = function (){
         console.log(val);
     });
 }
-convId = '71d79abf-2099-44f6-8137-be37e617e3ab';
-redisClient = initializer.getRedisClient();
-con = initializer.getSQLConn();
-redisClient.get(""+convId, function (err, reply){
-    let userIdList;
-    if (err || !reply) {
-        con.query("SELECT *  FROM conversation_table WHERE cid = ?", convId, function (err, resultSet) {
-            if (!err) {
-                userIdList = [];
-                for (let i = 0; i < resultSet.length; i++) {
-                    userIdList.push(resultSet[i].user_id);
+
+test_cache = function () {
+    convId = '71d79abf-2099-44f6-8137-be37e617e3ab';
+    redisClient = initializer.getRedisClient();
+    con = initializer.getSQLConn();
+    redisClient.get("" + convId, function (err, reply) {
+        let userIdList;
+        if (err || !reply) {
+            con.query("SELECT *  FROM conversation_table WHERE cid = ?", convId, function (err, resultSet) {
+                if (!err) {
+                    userIdList = [];
+                    for (let i = 0; i < resultSet.length; i++) {
+                        userIdList.push(resultSet[i].user_id);
+                    }
+                    redisClient.set("" + convId, JSON.stringify(userIdList));
+                    oper(userIdList)
                 }
-                redisClient.set("" + convId, JSON.stringify(userIdList));
-                oper(userIdList)
-            }
-        });
-    } else {
-        userIdList = JSON.parse(reply);
-        oper(userIdList)
-    }
-})
-let oper = (userIdList)=>{
-    redisClient.mget(userIdList, function (err, userDetailsList){
-        console.log("Success:", userDetailsList)
+            });
+        } else {
+            userIdList = JSON.parse(reply);
+            oper(userIdList)
+        }
     })
+    let oper = (userIdList) => {
+        redisClient.mget(userIdList, function (err, userDetailsList) {
+            console.log("Success:", userDetailsList)
+        })
+    }
 }
+
+let redisClient = initializer.getRedisClient();
+let serverId = 123;
+// redisClient.psubscribe("topic_" + serverId);
+// redisClient.on('message', function(channel, packetStr) {
+//     console.log(packetStr);
+// });
+redisClient.publish("topic", "Hello Packet!");
