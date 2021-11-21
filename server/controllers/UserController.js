@@ -21,7 +21,6 @@ UserController.getAllUsers = (req, res) => {
         }
         
     });
-    //con.end();
 }
 
 UserController.fetchByUserid = (req, res) =>{
@@ -42,7 +41,6 @@ UserController.fetchByUserid = (req, res) =>{
         }
         
     });
-    //con.end();
 }
 
 exports.UserController = UserController;

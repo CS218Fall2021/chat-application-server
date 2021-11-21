@@ -42,15 +42,13 @@ ConversationController.fetchByUserId = (req, res) => {
             });
         }
         else {
-            console.log(result);
-            //var cids = [];
+            //console.log(result);
             var userids = [];
             for(var i = 0; i < result.length; i++) {
                 if(result[i].user_id == body.user_id) {
-                    userids.push({cid: result[i].cid, user_id: []});
+                    userids.push({cid: result[i].cid, user_id: [], isGroup: false});
                 }
             }
-            //console.log(userids);
 
             for(var i = 0; i < userids.length; i++) {
                 for(var j = 0; j < result.length; j++) {
@@ -59,7 +57,12 @@ ConversationController.fetchByUserId = (req, res) => {
                     }
                 }
             }
-            //console.log(cids);
+           
+            for(var i = 0; i < userids.length; i++) {
+                if(userids[i].user_id.length > 2){
+                    userids[i].isGroup = true;
+                }
+            }
             console.log(userids);
             res.json({
                 userids

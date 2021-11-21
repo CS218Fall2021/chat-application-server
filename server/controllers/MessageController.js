@@ -30,7 +30,6 @@ MessageController.add = (req, res) => {
         }
         
     });
-    //con.end();
 }
 
 MessageController.fetchByCid = (req, res) =>{
@@ -51,14 +50,13 @@ MessageController.fetchByCid = (req, res) =>{
         }
         
     });
-    //con.end();
 }
 
 MessageController.fetchByTS = (req, res) => {
     var mom = moment();
     const ts = mom.subtract(10, "days").format('YYYY-MM-DD HH:mm:ss');
     var cid = req.params.cid;
-//timestamp >= ? AND
+
     con.query("SELECT * FROM message_table WHERE timestamp >= ? AND cid = ?", [ts, cid], function(err, result) {
         if(err) {
             console.log("err");
@@ -74,7 +72,6 @@ MessageController.fetchByTS = (req, res) => {
         }
         
     });
-    //con.end();
 }
 
 exports.MessageController = MessageController;
