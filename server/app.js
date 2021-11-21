@@ -16,14 +16,16 @@ const mysql = require("mysql");
 const db = require("./config/database");
 const ConversationRouter = require("./routes/ConversationRouter");
 const MessageRouter = require("./routes/MessageRouter");
+const UserRouter = require("./routes/UserRouter");
 
 const redisGetAsync = util.promisify(redisClient.get).bind(redisClient);
 
 const app = express();
 app.use(index);
 app.use(cors());
-app.use("/conversation", ConversationRouter)
-app.use("/message", MessageRouter)
+app.use("/conversation", ConversationRouter);
+app.use("/message", MessageRouter);
+app.use("/user", UserRouter);
 const serverId = uuidv4();
 
 //Database
@@ -49,8 +51,8 @@ con.connect(function(err) {
 // /user to fetch all users => get                                                  DONE
 // /user/{user_id} to fetch user with id = user_id => get                           DONE
 // /message/{c_id} => get                                                           DONE
-// /message/{user_id} => get all messages    (require timestamp)            
-// /message/{c_id} => post message (store)                                          DONE
+// /message/{user_id} => get all messages                                           DONE             
+// /message => post message (store)                                                 DONE
 // /conversation/{user_id} => get all {c_ids, user_ids} for user_id                 DONE
 // /conversation => post                                                            DONE
 // /
@@ -59,179 +61,6 @@ con.connect(function(err) {
 app.get('/', function(req,res) {
     res.json({'message': 'ok'});
 });
-
-app.get('/user', function(req, res) {
-    con.query('SELECT * FROM user_table', function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            res.json({
-                result
-            });
-        }
-        
-    });
-    //con.end();
-});
-app.post('/message', function(req, res) {
-    var body = {
-        m_id: uuidv4(),
-        cid: req.body.cid,
-        sender_id: req.body.sender_id,
-        data: req.body.data,
-        timestamp: moment(Date.now()).format('YYYY-MM-DD HH:mm:ss'),
-        group: req.body.group
-    } 
-    const cid = req.params.cid;
-    con.query("INSERT INTO message_table VALUES (?, ?, ?, ?, ?, ?)", [body.m_id, body.cid, body.sender_id, body.data, body. timestamp, body.group], function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            res.json({
-                result
-            });
-        }
-        
-    });
-    //con.end();
-});
-app.get('/message/:user_id', function(req, res) {
-    const sender_id = req.params.user_id;
-    //
-    con.query("SELECT * FROM message_table WHERE sender_id = ?", sender_id, function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            res.json({
-                result
-            });
-        }
-        
-    });
-    //con.end();
-});
-app.get('/message/:cid', function(req, res) {
-    const cid = req.params.cid;
-    console.log(cid);
-    con.query("SELECT * FROM message_table WHERE cid = ?", cid, function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            res.json({
-                result
-            });
-        }
-        
-    });
-    //con.end();
-});
-app.get('/user/:userid', function(req, res) {
-    const userid = req.params.userid;
-    console.log(userid);
-    con.query("SELECT * FROM user_table WHERE user_id = ?", userid, function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            res.json({
-                result
-            });
-        }
-        
-    });
-    //con.end();
-});
-
-// app.post('/conversation', function(req, res) {
-//     var body = {
-//         cid: req.body.cid,
-//         user_id: req.body.user_id,
-//     }
-//     console.log(body);
-//     con.query("INSERT INTO conversation_table VALUES (?, ?)", [body.cid, body.user_id], function(err, result) {
-//         if(err) {
-//             console.log("err");
-//             res.json({
-//                 message: "Error"
-//             });
-//         }
-//         else {
-//             console.log(result);
-//             res.json({
-//                 body
-//             });
-//         }
-        
-//     });
-//     //con.end();
-// });
-//
-// app.get('/conversation/:userid', function(req, res) {
-//     const userid = req.params.userid;
-//     var body = {
-//         user_id: userid,
-//     }
-//
-//     con.query("SELECT * FROM conversation_table", function(err, result) {
-//         if(err) {
-//             console.log("err");
-//             res.json({
-//                 message: "Error"
-//             });
-//         }
-//         else {
-//             console.log(result);
-//             //var cids = [];
-//             var userids = [];
-//             for(var i = 0; i < result.length; i++) {
-//                 if(result[i].user_id == body.user_id) {
-//                     userids.push({cid: result[i].cid, user_id: []});
-//                 }
-//             }
-//             //console.log(userids);
-//
-//             for(var i = 0; i < userids.length; i++) {
-//                 for(var j = 0; j < result.length; j++) {
-//                     if(userids[i].cid == result[j].cid) {
-//                         userids[i].user_id.push(result[j].user_id);
-//                     }
-//                 }
-//             }
-//             //console.log(cids);
-//             console.log(userids);
-//             res.json({
-//                 userids
-//             });
-//         }
-//
-//     });
-    //con.end();
-// });
-
 
 const server = http.createServer(app);
 
