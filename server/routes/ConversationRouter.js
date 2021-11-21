@@ -1,12 +1,14 @@
-import express from "express";
-import {ConversationController} from "../controllers/ConversationController";
+const express = require("express");
+const {ConversationController} = require("../controllers/ConversationController");
+const bodyParser = require("body-parser");
 
 let router = express.Router();
+let pareser = bodyParser.json()
 
-router.post("/", ConversationController.add);
+router.post("/", pareser,  ConversationController.add);
 
-router.get("/", ConversationController.fetch);
+router.get("/:userid", pareser, ConversationController.fetchByUserId);
 
-router.get("/:convId", ConversationController.fetchById);
+router.get("/:convId", pareser, ConversationController.fetchByConvId);
 
-export default router;
+module.exports = router;

@@ -14,14 +14,14 @@ const moment = require("moment");
 //Database Connection
 const mysql = require("mysql");
 const db = require("./config/database");
-//const ConversationRouter = require("./routes/ConversationRouter");
+const ConversationRouter = require("./routes/ConversationRouter");
 
 const redisGetAsync = util.promisify(redisClient.get).bind(redisClient);
 
 const app = express();
 app.use(index);
 app.use(cors());
-//app.use("/conversation", ConversationRouter);
+app.use("/conversation", ConversationRouter)
 const serverId = uuidv4();
 
 //Database
@@ -187,48 +187,48 @@ app.get('/user/:userid', function(req, res) {
 //     });
 //     //con.end();
 // });
-
-app.get('/conversation/:userid', function(req, res) {
-    const userid = req.params.userid;
-    var body = {
-        user_id: userid,
-    }
-    
-    con.query("SELECT * FROM conversation_table", function(err, result) {
-        if(err) {
-            console.log("err");
-            res.json({
-                message: "Error"
-            });
-        }
-        else {
-            console.log(result);
-            //var cids = [];
-            var userids = [];
-            for(var i = 0; i < result.length; i++) {
-                if(result[i].user_id == body.user_id) {
-                    userids.push({cid: result[i].cid, user_id: []});
-                }
-            }
-            //console.log(userids);
-            
-            for(var i = 0; i < userids.length; i++) {
-                for(var j = 0; j < result.length; j++) {
-                    if(userids[i].cid == result[j].cid) {
-                        userids[i].user_id.push(result[j].user_id); 
-                    }
-                }
-            }
-            //console.log(cids);
-            console.log(userids);
-            res.json({
-                userids
-            });
-        }
-        
-    });
+//
+// app.get('/conversation/:userid', function(req, res) {
+//     const userid = req.params.userid;
+//     var body = {
+//         user_id: userid,
+//     }
+//
+//     con.query("SELECT * FROM conversation_table", function(err, result) {
+//         if(err) {
+//             console.log("err");
+//             res.json({
+//                 message: "Error"
+//             });
+//         }
+//         else {
+//             console.log(result);
+//             //var cids = [];
+//             var userids = [];
+//             for(var i = 0; i < result.length; i++) {
+//                 if(result[i].user_id == body.user_id) {
+//                     userids.push({cid: result[i].cid, user_id: []});
+//                 }
+//             }
+//             //console.log(userids);
+//
+//             for(var i = 0; i < userids.length; i++) {
+//                 for(var j = 0; j < result.length; j++) {
+//                     if(userids[i].cid == result[j].cid) {
+//                         userids[i].user_id.push(result[j].user_id);
+//                     }
+//                 }
+//             }
+//             //console.log(cids);
+//             console.log(userids);
+//             res.json({
+//                 userids
+//             });
+//         }
+//
+//     });
     //con.end();
-});
+// });
 
 
 const server = http.createServer(app);

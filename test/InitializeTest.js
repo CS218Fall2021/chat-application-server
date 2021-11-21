@@ -27,5 +27,3 @@ test_redis_mget = function (){
         console.log(val);
     });
 }
-test_redis_connection();
-test_redis_mget()
