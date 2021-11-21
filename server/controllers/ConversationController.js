@@ -68,13 +68,13 @@ ConversationController.fetchByUserId = (req, res) => {
 }
 ConversationController.fetchByConvId = (req, res) => {
     console.log("Fetching Conversation...");
-    conn.query("SELECT *  FROM conversation_table WHERE cid = ?", req.body , function (err, result) {
+    con.query("SELECT *  FROM conversation_table WHERE cid = ?", req.params.convId , function (err, result) {
         if (err) {
             console.log("err");
         } else {
             console.log(result);
             res.json({
-                "success": "Success"
+                result
             })
         }
     });

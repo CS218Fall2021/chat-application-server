@@ -9,6 +9,6 @@ router.post("/", pareser,  ConversationController.add);
 
 router.get("/:userid", pareser, ConversationController.fetchByUserId);
 
-router.get("/:convId", pareser, ConversationController.fetchByConvId);
+router.get("/conv/:convId", pareser, ConversationController.fetchByConvId);
 
 module.exports = router;

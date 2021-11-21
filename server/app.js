@@ -15,6 +15,7 @@ const moment = require("moment");
 const mysql = require("mysql");
 const db = require("./config/database");
 const ConversationRouter = require("./routes/ConversationRouter");
+const MessageRouter = require("./routes/MessageRouter");
 
 const redisGetAsync = util.promisify(redisClient.get).bind(redisClient);
 
@@ -22,6 +23,7 @@ const app = express();
 app.use(index);
 app.use(cors());
 app.use("/conversation", ConversationRouter)
+app.use("/message", MessageRouter)
 const serverId = uuidv4();
 
 //Database
