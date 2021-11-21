@@ -101,13 +101,6 @@ io.on("connection", (socket) => {
       console.log("Client disconnected");
     });
 
-    // TODO
-    function getUserIdList(convId) {
-        let l = [];
-        l.push(`${convId}`);
-        return l;
-    }
-
     socket.on("IncomingMessage", async ({userId, convId, message}) => {
         console.log("message from : ", userId );
         console.log("message : ", message);
