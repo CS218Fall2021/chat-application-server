@@ -87,7 +87,7 @@ io.on("connection", (socket) => {
                     for(let i=0;i<n;i++){
                         let userDetails = JSON.parse(userDetailsList[i]);
                         if(userDetails.serverId === serverId){
-                            if(senderId !== userDetails.userId) {
+                            if(senderId !== userIdList[i]) {
                                 homeUserSocketIdList.push(userDetails.socketId)
                             }
                         }else{

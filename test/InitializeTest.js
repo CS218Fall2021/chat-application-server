@@ -60,8 +60,8 @@ test_cache = function () {
 
 let redisClient = initializer.getRedisClient();
 let serverId = 123;
-// redisClient.psubscribe("topic_" + serverId);
-// redisClient.on('message', function(channel, packetStr) {
-//     console.log(packetStr);
-// });
+redisClient.psubscribe("wtf");
+redisClient.on('message', function(channel, packetStr) {
+    console.log(packetStr);
+});
 redisClient.publish("topic", "Hello Packet!");
