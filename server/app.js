@@ -9,54 +9,25 @@ const {initializer} = require("./init");
 const {appPort} = require("./config/config");
 const {use} = require("express/lib/router");
 const redisClient = initializer.getRedisClient();
-const moment = require("moment");
 
-//Database Connection
-const mysql = require("mysql");
-const db = require("./config/database");
 const ConversationRouter = require("./routes/ConversationRouter");
 const MessageRouter = require("./routes/MessageRouter");
 const UserRouter = require("./routes/UserRouter");
 
 const redisGetAsync = util.promisify(redisClient.get).bind(redisClient);
 
+const serverId = uuidv4();
 const app = express();
 app.use(index);
 app.use(cors());
 app.use("/conversation", ConversationRouter);
 app.use("/message", MessageRouter);
 app.use("/user", UserRouter);
-const serverId = uuidv4();
-
-//Database
 app.use(express.json());
 app.use(function(req, res, next) {
     res.setHeader("Content-Type", "application/json");
     next();
 });
-
-//Database Connection
-const con = mysql.createConnection({
-    host: db.host,
-    user: db.username,
-    password: db.password,
-    port: "3306",
-    database: db.database
-});
-con.connect(function(err) {
-    console.log("Connected!");
-});
-
-// API's
-// /user to fetch all users => get                                                  DONE
-// /user/{user_id} to fetch user with id = user_id => get                           DONE
-// /message/{c_id} => get                                                           DONE
-// /message/{user_id} => get all messages                                           DONE             
-// /message => post message (store)                                                 DONE
-// /conversation/{user_id} => get all {c_ids, user_ids} for user_id                 DONE
-// /conversation => post                                                            DONE
-// /
-// Send messages through socket
 
 app.get('/', function(req,res) {
     res.json({'message': 'ok'});
@@ -70,19 +41,11 @@ const io = socketIo(server,  {
     }
 });
 
-redisClient.on('connect', function() {
-    console.log('Connected!');
+redisClient.subscribe("topic_" + serverId);
+redisClient.on('message', function(channel, packetStr) {
+    let packet = JSON.parse(packetStr);
+
 });
-
-redisClient.on("error", function (err) {
-    console.log("Error " + err);
-});
-
-
-// redisClient.subscribe("topic_" + serverId);
-// redisClient.on('message', function(channel, message) {
-//     io.emit(subscriber_key, JSON.parse(message));
-// });
 
 io.on("connection", (socket) => {
     console.log("New client connected");
@@ -98,38 +61,31 @@ io.on("connection", (socket) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected");
+        console.log("Client disconnected");
     });
 
     socket.on("IncomingMessage", async ({userId, convId, message}) => {
-        console.log("message from : ", userId );
-        console.log("message : ", message);
-        console.log("toSendUserId : ", convId);
         redisClient.get("conv:"+convId, function (err, userIdListStr){
             let userIdList = JSON.parse(userIdListStr);
             redisClient.mget(userIdList, function (err, userDetailsList){
                 let homeUserSocketIdList = [];
                 let otherServerList = set();
-                console.log(userDetailsList, Array.isArray(userDetailsList));
-                console.log(err);
                 let n = userDetailsList.length;
                 for(let i=0;i<n;i++){
                     let userDetails = JSON.parse(userDetailsList[i]);
-                    console.log(userDetails.serverId, serverId);
                     if(userDetails.serverId === serverId){
                         homeUserSocketIdList.push(userDetails.c_socketId)
                     }else{
                         otherServerList.add(userDetails.serverId)
                     }
                 }
-                console.log("Sending message to: ",homeUserSocketIdList)
                 socket.to(homeUserSocketIdList).emit('SendingMessage', {
                     from: userId,
                     to: convId,
                     message: message
                 });
                 for (let serverId in otherServerList){
-                    redisClient.publish(serverId, {userId, convId, message})
+                    redisClient.publish(serverId, JSON.stringify({userId, convId, message}));
                 }
             })
         })
