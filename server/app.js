@@ -108,37 +108,37 @@ io.on("connection", (socket) => {
         return l;
     }
 
-    socket.on("IncomingMessage", async ({userId, toSendUserId, message}) => {
-        let convId = toSendUserId;
+    socket.on("IncomingMessage", async ({userId, convId, message}) => {
         console.log("message from : ", userId );
         console.log("message : ", message);
         console.log("toSendUserId : ", convId);
-        userIdList = getUserIdList(convId)
-        console.log(userIdList);
-        redisClient.mget(userIdList, function (err, userDetailsList){
-            let homeUserSocketIdList = [];
-            let otherServerList = set();
-            console.log(userDetailsList, Array.isArray(userDetailsList));
-            console.log(err);
-            let n = userDetailsList.length;
-            for(let i=0;i<n;i++){
-                let userDetails = JSON.parse(userDetailsList[i]);
-                console.log(userDetails.serverId, serverId);
-                if(userDetails.serverId === serverId){
-                    homeUserSocketIdList.push(userDetails.c_socketId)
-                }else{
-                    otherServerList.add(userDetails.serverId)
+        redisClient.get("conv:"+convId, function (err, userIdListStr){
+            let userIdList = JSON.parse(userIdListStr);
+            redisClient.mget(userIdList, function (err, userDetailsList){
+                let homeUserSocketIdList = [];
+                let otherServerList = set();
+                console.log(userDetailsList, Array.isArray(userDetailsList));
+                console.log(err);
+                let n = userDetailsList.length;
+                for(let i=0;i<n;i++){
+                    let userDetails = JSON.parse(userDetailsList[i]);
+                    console.log(userDetails.serverId, serverId);
+                    if(userDetails.serverId === serverId){
+                        homeUserSocketIdList.push(userDetails.c_socketId)
+                    }else{
+                        otherServerList.add(userDetails.serverId)
+                    }
                 }
-            }
-            console.log("Sending message to: ",homeUserSocketIdList)
-            socket.to(homeUserSocketIdList).emit('SendingMessage', {
-                from: userId,
-                to: convId,
-                message: message
-            });
-            for (let serverId in otherServerList){
-                redisClient.publish(serverId, {userId, convId, message})
-            }
+                console.log("Sending message to: ",homeUserSocketIdList)
+                socket.to(homeUserSocketIdList).emit('SendingMessage', {
+                    from: userId,
+                    to: convId,
+                    message: message
+                });
+                for (let serverId in otherServerList){
+                    redisClient.publish(serverId, {userId, convId, message})
+                }
+            })
         })
     });
   });

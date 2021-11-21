@@ -1,14 +1,13 @@
 const express = require("express");
 const {ConversationController} = require("../controllers/ConversationController");
-const bodyParser = require("body-parser");
 
 let router = express.Router();
-let pareser = bodyParser.json()
+let parser = express.json()
 
-router.post("/", pareser,  ConversationController.add);
+router.post("/", parser,  ConversationController.add);
 
-router.get("/:userid", pareser, ConversationController.fetchByUserId);
+router.get("/:userid", parser, ConversationController.fetchByUserId);
 
-router.get("/conv/:convId", pareser, ConversationController.fetchByConvId);
+router.get("/conv/:convId", parser, ConversationController.fetchByConvId);
 
 module.exports = router;
