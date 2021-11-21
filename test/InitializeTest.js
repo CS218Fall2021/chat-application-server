@@ -2,6 +2,7 @@ const {initializer} = require("../server/init");
 const {v4: uuidv4} = require("uuid");
 const redis = require("redis");
 const {redis_endpoint} = require("../server/config/redisconfig");
+const Redis = require('ioredis');
 
 test_redis_connection = function (){
     console.log("Running test_redis_connection")
@@ -66,13 +67,13 @@ let serverId = 123;
 // });
 redis_subscribers = {};
 function add_redis_subscriber(subscriber_key) {
-    var client = redis.createClient(redis_endpoint);
+    var client = new Redis(redis_endpoint);
     client.subscribe(subscriber_key);
-    client.on('topic', function(channel, message) {
-        console.log(message);
+    client.on('message', (channel, message) => {
+        console.log(`Received the following message from ${channel}: ${message}`);
     });
     redis_subscribers[subscriber_key] = client;
 }
 add_redis_subscriber("topic");
-let redisClient2 = initializer.getRedisClient();
+let redisClient2 = new Redis(redis_endpoint);
 redisClient2.publish("topic", "Hello Packet!");

@@ -1,4 +1,5 @@
 const redis = require("redis");
+const Redis = require("ioredis");
 const {redis_endpoint} = require("./config/redisconfig");
 const mysql = require("mysql");
 const db = require("./config/database");
@@ -24,7 +25,10 @@ Initializer = function (){
     });
     console.log("Application Initialized Successfully...")
 }
-Initializer.prototype.getRedisClient = function (){
+Initializer.prototype.getPubSubClient = function (){
+    return new Redis(redis_endpoint);
+}
+Initializer.prototype.getRedisClient= function (){
     return this.redisClient
 }
 Initializer.prototype.getSQLConn = function (){
