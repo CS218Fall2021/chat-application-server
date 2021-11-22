@@ -35,7 +35,7 @@ MessageController.add = (req, res) => {
 MessageController.fetchByCid = (req, res) =>{
     const cid = req.params.cid;
     console.log(cid);
-    con.query("SELECT * FROM message_table WHERE cid = ?", cid, function(err, result) {
+    con.query("SELECT * FROM message_table WHERE cid = ? order by timestamp ASC", cid, function(err, result) {
         if(err) {
             console.log("err");
             res.json({
@@ -56,7 +56,7 @@ MessageController.fetchByTS = (req, res) => {
     let cid = req.params.cid;
     let from_ts  = req.params.from_ts;
     let to_ts  = req.params.to_ts;
-    con.query("SELECT * FROM message_table WHERE timestamp >=  ? AND timestamp <= ? AND cid = ?", [from_ts, to_ts, cid], function(err, result) {
+    con.query("SELECT * FROM message_table WHERE timestamp >=  ? AND timestamp <= ? AND cid = ? order by timestamp ASC", [from_ts, to_ts, cid], function(err, result) {
         if(err) {
             console.log("err");
             res.json({

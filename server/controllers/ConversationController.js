@@ -73,14 +73,12 @@ ConversationController.fetchByUserId = (req, res) => {
                     userids[i].isGroup = true;
                 }
             }
-            console.log(userids);
             res.json({
                 userids
             });
         }
 
     });
-    console.log(req);
 }
 ConversationController.fetchByConvId = (req, res) => {
     console.log("Fetching Conversation...");

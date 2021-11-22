@@ -36,22 +36,26 @@ const con = initializer.getSQLConn()
 
 let subscriber = initializer.getPubSubClient();
 subscriber.subscribe("topic_" + serverId);
+console.log("Subscribed to: ", "topic_" + serverId);
 subscriber.on('message', function(channel, packetStr) {
     let packet = JSON.parse(packetStr);
     con.query("SELECT *  FROM conversation_table WHERE cid = ?", packet.convId , function (err, resultSet) {
         if (!err) {
             let userIdList = [];
-            resultSet.forEach(e=>(userIdList.push(e.userId)));
+            for(let i = 0; i < resultSet.length; i++) {
+                userIdList.push(resultSet[i].user_id);
+            }
             redisClient.mget(userIdList, function (err, userDetailsList){
                 let homeUserSocketIdList = [];
-                let n = userDetailsList.length;
-                for(let i=0;i<n;i++){
+                for(let i=0;i<userDetailsList.length;i++){
                     let userDetails = JSON.parse(userDetailsList[i]);
                     if(userDetails.serverId === serverId){
                         homeUserSocketIdList.push(userDetails.socketId)
                     }
                 }
-                io.to(homeUserSocketIdList).emit('SendingMessage', {from: userId,to: convId,message: message})
+                if(homeUserSocketIdList.length>0){
+                    io.to(homeUserSocketIdList).emit('SendingMessage', {from: packet.senderId,to: packet.convId,message: packet.message})
+                }
             })
         }
     });
@@ -73,7 +77,6 @@ io.on("connection", (socket) => {
         console.log("Client disconnected");
     });
 
-    // TODO same user validation
     socket.on("IncomingMessage", async ({senderId, convId, message}) => {
         con.query("SELECT *  FROM conversation_table WHERE cid = ?", convId , function (err, resultSet) {
             if (!err) {
@@ -84,8 +87,7 @@ io.on("connection", (socket) => {
                 redisClient.mget(userIdList, function (err, userDetailsList){
                     let homeUserSocketIdList = [];
                     let otherServerList = new Set();
-                    let n = userDetailsList.length;
-                    for(let i=0;i<n;i++){
+                    for(let i=0;i<userDetailsList.length;i++){
                         let userDetails = JSON.parse(userDetailsList[i]);
                         if(userDetails.serverId === serverId){
                             if(senderId !== userIdList[i]) {
@@ -96,12 +98,17 @@ io.on("connection", (socket) => {
                         }
                     }
                     let ts = Math.floor(+new Date() / 1000);
-                    io.to(homeUserSocketIdList).emit('SendingMessage', {from: senderId,to: convId,message: message, timestamp: ts});
-                    for (let serverId in otherServerList){
-                        redisClient.publish("topic_" + serverId, JSON.stringify({senderId, convId, message}));
+                    let mid = uuidv4()
+                    if(homeUserSocketIdList.length>0){
+                        io.to(homeUserSocketIdList).emit('SendingMessage', {from: senderId, to: convId, message: message, timestamp: ts, m_id: mid});
+                    }
+                    // for (let i=0;i< otherServerList.size;i++){
+                    for (var otherServer of otherServerList){
+                        redisClient.publish("topic_" + otherServer, JSON.stringify({senderId, convId, message}));
+                        console.log("published to: ", "topic_" + otherServer)
                     }
                     let body = {
-                        m_id: uuidv4(),
+                        m_id: mid,
                         cid: convId,
                         sender_id: senderId,
                         data: message,

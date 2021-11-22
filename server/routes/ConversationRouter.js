@@ -1,8 +1,9 @@
 const express = require("express");
 const {ConversationController} = require("../controllers/ConversationController");
+const bodyParser = require("body-parser");
 
 let router = express.Router();
-let parser = express.json()
+let parser = bodyParser.json()
 
 router.post("/", parser,  ConversationController.add);
 
