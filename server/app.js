@@ -69,12 +69,8 @@ io.on("connection", (socket) => {
         console.log("User connected: ", userDetails);
     });
 
-    socket.on("UserIsGoingOffine", (userId) => {
-         redisClient.del(userId)
-    });
-
-    socket.on("disconnect", () => {
-        console.log("Client disconnected");
+    socket.on("disconnect", (userId) => {
+        redisClient.del(userId)
     });
 
     socket.on("IncomingMessage", async ({senderId, convId, message}) => {
@@ -125,4 +121,5 @@ io.on("connection", (socket) => {
         });
     });
   });
+
 server.listen(appPort, () => console.log(`Listening on port ${appPort}`));
