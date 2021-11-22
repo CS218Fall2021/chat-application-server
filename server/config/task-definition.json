@@ -1,6 +1,4 @@
 {
-    "taskDefinition": {
-        "taskDefinitionArn": "arn:aws:ecs:us-east-1:976906067860:task-definition/task:1",
         "containerDefinitions": [
             {
                 "name": "session-service",
@@ -67,4 +65,3 @@
         "registeredAt": "2021-11-21T22:00:29.461000-08:00",
         "registeredBy": "arn:aws:iam::976906067860:root"
     }
-}
