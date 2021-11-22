@@ -4,6 +4,7 @@
                 "name": "session-service",
                 "image": "public.ecr.aws/b6v0q1b1/instant-messaging-repo-1/latest",
                 "cpu": 0,
+                "links": [],
                 "portMappings": [
                     {
                         "containerPort": 80,
@@ -12,26 +13,27 @@
                     }
                 ],
                 "essential": true,
+                "entryPoint": [],
+                "command": [],
                 "environment": [],
                 "mountPoints": [],
                 "volumesFrom": [],
                 "logConfiguration": {
                     "logDriver": "awslogs",
                     "options": {
-                        "awslogs-group": "/ecs/task",
+                        "awslogs-group": "/ecs/first-run-task-definition",
                         "awslogs-region": "us-east-1",
                         "awslogs-stream-prefix": "ecs"
                     }
                 }
             }
         ],
-        "family": "task",
-        "taskRoleArn": "arn:aws:iam::976906067860:role/ecsTaskExecutionRole",
+        "family": "first-run-task-definition",
         "executionRoleArn": "arn:aws:iam::976906067860:role/ecsTaskExecutionRole",
         "networkMode": "awsvpc",
         "revision": 1,
         "volumes": [],
-        "status": "ACTIVE",
+        "status": "INACTIVE",
         "requiresAttributes": [
             {
                 "name": "com.amazonaws.ecs.capability.logging-driver.awslogs"
@@ -41,9 +43,6 @@
             },
             {
                 "name": "com.amazonaws.ecs.capability.docker-remote-api.1.19"
-            },
-            {
-                "name": "com.amazonaws.ecs.capability.task-iam-role"
             },
             {
                 "name": "com.amazonaws.ecs.capability.docker-remote-api.1.18"
@@ -62,6 +61,7 @@
         ],
         "cpu": "256",
         "memory": "512",
-        "registeredAt": "2021-11-21T22:00:29.461000-08:00",
+        "registeredAt": "2021-11-21T20:37:55.419000-08:00",
+        "deregisteredAt": "2021-11-21T22:41:47.599000-08:00",
         "registeredBy": "arn:aws:iam::976906067860:root"
     }
