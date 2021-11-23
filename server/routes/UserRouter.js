@@ -8,4 +8,6 @@ router.get("/", parser,  UserController.getAllUsers);
 
 router.get("/:userid", parser, UserController.fetchByUserid);
 
+router.get("/online/status/:userid", parser, UserController.getUserOnlineStatus)
+
 module.exports = router;
