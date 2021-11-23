@@ -18,7 +18,9 @@ const moment = require("moment");
 const serverId = uuidv4();
 const app = express();
 app.use(index);
-app.use(cors({origin:"http://34.228.156.100:3000"}));
+app.use(cors({origin:"*", 
+              credentials:true, 
+              optionSuccessStatus:200,}));
 app.use("/conversation", ConversationRouter);
 app.use("/message", MessageRouter);
 app.use("/user", UserRouter);
