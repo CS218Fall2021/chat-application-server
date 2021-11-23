@@ -18,7 +18,7 @@ const moment = require("moment");
 const serverId = uuidv4();
 const app = express();
 app.use(index);
-app.use(cors());
+app.use(cors({origin:"http://34.228.156.100:3000"}));
 app.use("/conversation", ConversationRouter);
 app.use("/message", MessageRouter);
 app.use("/user", UserRouter);
@@ -31,7 +31,7 @@ app.get('/', function(req,res) {
     res.json({'message': 'ok'});
 });
 const server = http.createServer(app);
-const io = socketIo(server,  {cors: {origin: 'http://34.228.156.100:3000',}});
+const io = socketIo(server,  {cors: {origin: 'http://34.228.156.100:3000'}});
 const con = initializer.getSQLConn()
 
 sendMessageToSubscribers = function (packet, userIdList){
