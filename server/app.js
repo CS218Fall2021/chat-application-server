@@ -18,9 +18,17 @@ const moment = require("moment");
 const serverId = uuidv4();
 const app = express();
 app.use(index);
-app.use(cors({origin:"*", 
-              credentials:true, 
-              optionSuccessStatus:200,}));
+//app.use(cors({origin:"*"}));
+app.use(cors({
+    origin: '*',
+    methods: [
+      'GET',
+      'POST',
+    ],
+    allowedHeaders: [
+      'Content-Type',
+    ],
+}));
 app.use("/conversation", ConversationRouter);
 app.use("/message", MessageRouter);
 app.use("/user", UserRouter);
@@ -32,15 +40,22 @@ app.use(function(req, res, next) {
 app.get('/', function(req,res) {
     res.json({'message': 'ok'});
 });
-const server = http.createServer(app);
-//const io = socketIo(server,  {cors: {origin: 'http://34.228.156.100:3000'}});
-const io = socketIo(server,  {
-    cors: {  
-        origin: 'http://34.228.156.100:3000',
-        methods: ["GET", "POST"]
-    }
-
+app.use( (err, req, res, next) => {
+    res.end(err.message);
 });
+
+redisClient.on("error", (err) => {
+    console.error("Error connecting to redis", err);
+});
+const server = http.createServer(app);
+const io = socketIo(server,  {cors: {origin: 'http://34.228.156.100:3000'}});
+// const io = socketIo(server,  {
+//     cors: {  
+//         origin: 'http://34.228.156.100:3000',
+//         methods: ["GET", "POST"]
+//     }
+
+// });
 const con = initializer.getSQLConn()
 
 sendMessageToSubscribers = function (packet, userIdList){
