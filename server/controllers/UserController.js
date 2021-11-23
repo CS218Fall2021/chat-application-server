@@ -4,6 +4,7 @@ const moment = require("moment");
 let UserController = {}
 
 con = initializer.getSQLConn()
+const redisClient = initializer.getRedisClient();
 
 UserController.getAllUsers = (req, res) => {
     con.query('SELECT * FROM user_table', function(err, result) {
@@ -25,7 +26,6 @@ UserController.getAllUsers = (req, res) => {
 
 UserController.fetchByUserid = (req, res) =>{
     const userid = req.params.userid;
-    console.log(userid);
     con.query("SELECT * FROM user_table WHERE user_id = ?", userid, function(err, result) {
         if(err) {
             console.log("err");
@@ -41,6 +41,19 @@ UserController.fetchByUserid = (req, res) =>{
         }
         
     });
+}
+
+UserController.getUserOnlineStatus = (req, res) => {
+    const userid = req.params.userid;
+   
+    redisClient.get(`${userid}`, (err, user) => {
+        console.log("user", user, typeof user);
+        if(user) {
+            res.json({isOnline : true});
+        } else {
+            res.json({isOnline : false});
+        }
+    })
 }
 
 exports.UserController = UserController;

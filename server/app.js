@@ -78,7 +78,7 @@ io.on("connection", (socket) => {
         console.log("User connected: ", userDetails);
     });
 
-    socket.on("disconnect", (userId) => {
+    socket.on("UserIsOffline", (userId) => {
         redisClient.del(userId)
     });
 
