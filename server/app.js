@@ -40,6 +40,9 @@ app.use(function(req, res, next) {
 app.get('/', function(req,res) {
     res.json({'message': 'ok'});
 });
+app.use( (err, req, res, next) => {
+    next(err);
+});
 
 redisClient.on("error", (err) => {
     console.error("Error connecting to redis", err);
