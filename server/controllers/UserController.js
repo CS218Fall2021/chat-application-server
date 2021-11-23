@@ -14,7 +14,7 @@ UserController.getAllUsers = (req, res) => {
             });
         }
         else {
-            console.log(result);
+            //console.log(result);
             res.json({
                 result
             });
@@ -34,7 +34,7 @@ UserController.fetchByUserid = (req, res) =>{
             });
         }
         else {
-            console.log(result);
+            //console.log(result);
             res.json({
                 result
             });

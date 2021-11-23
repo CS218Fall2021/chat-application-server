@@ -31,7 +31,7 @@ app.get('/', function(req,res) {
     res.json({'message': 'ok'});
 });
 const server = http.createServer(app);
-const io = socketIo(server,  {cors: {origin: '*',}});
+const io = socketIo(server,  {cors: {origin: '*:*',}});
 const con = initializer.getSQLConn()
 
 sendMessageToSubscribers = function (packet, userIdList){

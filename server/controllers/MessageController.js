@@ -23,7 +23,7 @@ MessageController.add = (req, res) => {
             });
         }
         else {
-            console.log(result);
+            //console.log(result);
             res.json({
                 result
             });
@@ -43,7 +43,7 @@ MessageController.fetchByCid = (req, res) =>{
             });
         }
         else {
-            console.log(result);
+            //console.log(result);
             res.json({
                 result
             });
@@ -64,7 +64,7 @@ MessageController.fetchByTS = (req, res) => {
             });
         }
         else {
-            console.log(result);
+           // console.log(result);
             res.json({
                 result
             });
