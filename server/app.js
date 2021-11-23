@@ -129,16 +129,19 @@ io.on("connection", (socket) => {
             let homeUserSocketIdList = [];
             let otherServerList = new Set();
             //console.log("type of userdetailslist", typeof userDetailsList);
-            for (let i = 0; i < userDetailsList.length; i++) {
-                let userDetails = JSON.parse(userDetailsList[i]);
-                if (userDetails.serverId === serverId) {
-                    if (senderId !== userIdList[i]) {
-                        homeUserSocketIdList.push(userDetails.socketId)
+            if(userDetailsList != null) {
+                for (let i = 0; i < userDetailsList.length; i++) {
+                    let userDetails = JSON.parse(userDetailsList[i]);
+                    if (userDetails.serverId === serverId) {
+                        if (senderId !== userIdList[i]) {
+                            homeUserSocketIdList.push(userDetails.socketId)
+                        }
+                    } else {
+                        otherServerList.add(userDetails.serverId)
                     }
-                } else {
-                    otherServerList.add(userDetails.serverId)
                 }
             }
+            
             let ts = Math.floor(+new Date() / 1000);
             let mid = uuidv4()
             for (let socketId of homeUserSocketIdList) {
