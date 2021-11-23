@@ -104,7 +104,7 @@ io.on("connection", (socket) => {
         redisClient.mget(userIdList, function (err, userDetailsList) {
             let homeUserSocketIdList = [];
             let otherServerList = new Set();
-            console.log("type of userdetailslist", typeof userDetailsList);
+            //console.log("type of userdetailslist", typeof userDetailsList);
             for (let i = 0; i < userDetailsList.length; i++) {
                 let userDetails = JSON.parse(userDetailsList[i]);
                 if (userDetails.serverId === serverId) {
