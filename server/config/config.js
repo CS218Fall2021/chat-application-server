@@ -1,2 +1,2 @@
-appPort = process.env.PORT || 80
+appPort = process.env.PORT || 4001
 exports.appPort = appPort

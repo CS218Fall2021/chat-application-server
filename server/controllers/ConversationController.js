@@ -38,7 +38,6 @@ ConversationController.add = (req, res) => {
 }
 
 ConversationController.fetchByUserId = (req, res) => {
-    console.log("Fetching Conversation...");
     const userid = req.params.userid;
     var body = {
         user_id: userid,
@@ -56,6 +55,7 @@ ConversationController.fetchByUserId = (req, res) => {
             var userids = [];
             for(var i = 0; i < result.length; i++) {
                 if(result[i].user_id == body.user_id) {
+                    console.log("result", result)
                     userids.push({cid: result[i].cid, user_id: [], isGroup: false});
                 }
             }
@@ -81,7 +81,6 @@ ConversationController.fetchByUserId = (req, res) => {
     });
 }
 ConversationController.fetchByConvId = (req, res) => {
-    console.log("Fetching Conversation...");
     con.query("SELECT *  FROM conversation_table WHERE cid = ?", req.params.convId , function (err, result) {
         if (err) {
             console.log("err");
