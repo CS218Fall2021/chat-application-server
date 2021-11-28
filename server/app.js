@@ -19,6 +19,7 @@ const serverId = uuidv4();
 const app = express();
 app.use(index);
 //app.use(cors({origin:"*"}));
+//app.use(cors({origin: "*"}));
 app.use(cors({
     origin: '*',
     methods: [
@@ -48,7 +49,7 @@ redisClient.on("error", (err) => {
     console.error("Error connecting to redis", err);
 });
 const server = http.createServer(app);
-const io = socketIo(server,  {cors: {origin: 'http://34.228.156.100:3000'}});
+const io = socketIo(server);
 // const io = socketIo(server,  {
 //     cors: {  
 //         origin: 'http://34.228.156.100:3000',
@@ -132,12 +133,14 @@ io.on("connection", (socket) => {
             if(userDetailsList != null) {
                 for (let i = 0; i < userDetailsList.length; i++) {
                     let userDetails = JSON.parse(userDetailsList[i]);
-                    if (userDetails.serverId === serverId) {
-                        if (senderId !== userIdList[i]) {
-                            homeUserSocketIdList.push(userDetails.socketId)
+                    if(userDetails) {
+                        if (userDetails.serverId === serverId) {
+                            if (senderId !== userIdList[i]) {
+                                homeUserSocketIdList.push(userDetails.socketId)
+                            }
+                        } else {
+                            otherServerList.add(userDetails.serverId)
                         }
-                    } else {
-                        otherServerList.add(userDetails.serverId)
                     }
                 }
             }
