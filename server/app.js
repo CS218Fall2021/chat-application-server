@@ -49,14 +49,14 @@ redisClient.on("error", (err) => {
     console.error("Error connecting to redis", err);
 });
 const server = http.createServer(app);
-const io = socketIo(server);
-// const io = socketIo(server,  {
-//     cors: {  
-//         origin: 'http://34.228.156.100:3000',
-//         methods: ["GET", "POST"]
-//     }
-
-// });
+//const io = socketIo(server);
+const io = socketIo(server,  {
+    cors: {  
+        origin: 'http://34.228.156.100:3000',
+        methods: ["GET", "POST"],
+        credentials: true
+    }
+});
 const con = initializer.getSQLConn()
 
 sendMessageToSubscribers = function (packet, userIdList){
