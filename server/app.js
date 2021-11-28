@@ -52,7 +52,7 @@ const server = http.createServer(app);
 //const io = socketIo(server);
 const io = socketIo(server,  {
     cors: {  
-        origin: 'http://50.17.21.98:3000',
+        origin: 'http://ec2-50-17-21-98.compute-1.amazonaws.com:3000',
         methods: ["GET", "POST"],
         credentials: true
     }
