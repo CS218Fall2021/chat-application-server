@@ -20,12 +20,10 @@ const app = express();
 app.use(index);
 //app.use(cors({origin:"*"}));
 //app.use(cors({origin: "*"}));
-app.use({
-    cors: {  
+app.use(cors({  
         origin: 'http://ec2-50-17-21-98.compute-1.amazonaws.com:3000',
         methods: ["GET", "POST"],
-        credentials: true
-    }});
+        credentials: true }));
 app.use("/conversation", ConversationRouter);
 app.use("/message", MessageRouter);
 app.use("/user", UserRouter);
